@@ -1,0 +1,88 @@
+org: muzhig
+app: push-to-notion
+service: ${env:SERVICE_NAME}
+frameworkVersion: '3'
+useDotenv: true
+variablesResolutionMode: 20210326
+configValidationMode: error
+
+provider:
+  name: aws
+  profile: ${env:AWS_PROFILE, "default"}
+  region: ${env:AWS_REGION, "us-east-1"}
+  runtime: python3.9
+  lambdaHashingVersion: 20201221
+  memorySize: 128
+  environment:
+    SENTRY_DSN: ${env:SENTRY_DSN}
+    STAGE: ${opt:stage, 'dev'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "*"
+resources: # CloudFormation template syntax from here on.
+  - Resources:
+      simpleOtpSecrets:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: simple-otp-secrets
+          AttributeDefinitions:
+            - AttributeName: id
+              AttributeType: S
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
+#          BillingMode: PAY_PER_REQUEST
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          TimeToLiveSpecification:
+            AttributeName: expires
+            Enabled: true
+
+plugins:
+  - serverless-python-requirements
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!package-lock.json'
+
+
+functions:
+  otpVerificationStart:
+    handler: main.otp_verification_start
+    events:
+      - http:
+          path: "/otp-verification/start"
+          method: POST
+          cors: true
+    reservedConcurrency: 1
+    timeout: 30
+    environment:
+      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
+      MAILGUN_FROM_EMAIL: ${env:MAILGUN_FROM_EMAIL}
+      MAILGUN_SENDING_DOMAIN: ${env:MAILGUN_SENDING_DOMAIN}
+      TWILIO_ACCOUNT_SID: ${env:TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${env:TWILIO_AUTH_TOKEN}
+      TWILIO_FROM_NUMBER: ${env:TWILIO_FROM_NUMBER}
+
+  otpVerificationComplete:
+    handler: main.otp_verification_complete
+    events:
+      - http:
+          path: "/otp-verification/complete"
+          method: POST
+          cors: true
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET}
+    reservedConcurrency: 1
+    timeout: 30
+

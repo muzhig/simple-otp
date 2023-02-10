@@ -1,0 +1,5 @@
+requests
+pyotp
+sentry_sdk
+pynamodb
+pyjwt
