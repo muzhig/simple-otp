@@ -9,6 +9,7 @@ function App() {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [isOtpCodeSent, setIsOtpCodeSent] = useState(false);
   const [pinCode, setPinCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);  // TODO: show loading circle, disable buttons
 
   const validateEmail = (emailOrPhone: string): string | undefined => {
     const emailCandidate = emailOrPhone.replace(" ", "").toLowerCase()
@@ -64,7 +65,7 @@ function App() {
   }
   return (
     <div className="App">
-      <h1>OTP Verification</h1>
+      <h1>Simple OTP Demo</h1>
       <Grid container justifyContent={"center"} spacing={2} sx={{mt:2}}>
         <Grid item xs={11} sm={6} md={4}>
           <Stack spacing={2} direction={"column"}>
@@ -72,7 +73,7 @@ function App() {
               verifiedSub ? (
                 <>
                   <TextField
-                    label={`JWT Token (✅ ️${verifiedSub})`}
+                    label={`JWT Token (✅ ${verifiedSub})`}
                     value={token}
                     autoFocus={true}
                     sx={{width: "100%"}}
