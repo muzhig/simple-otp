@@ -2,7 +2,6 @@ import './App.css';
 import {Button, Grid, Stack, TextField} from "@mui/material";
 import {useState} from "react";
 import jwt_decode from "jwt-decode";
-import CheckIcon from '@mui/icons-material/Check';
 
 function App() {
   const [verifiedSub, setVerifiedSub] = useState<string | null>(null);
