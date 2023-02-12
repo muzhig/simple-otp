@@ -164,7 +164,7 @@ def otp_verification_complete(event, context):
     token = jwt.encode(
         {
             'iss': 'https://otp.potapov.dev/',
-            'aud': 'https://otp.potapov.dev/',
+            'aud': 'https://api.potapov.dev/',
             'sub': sub,
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
