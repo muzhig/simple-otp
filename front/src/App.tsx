@@ -5,31 +5,51 @@ import jwt_decode from "jwt-decode";
 import CheckIcon from '@mui/icons-material/Check';
 
 function App() {
-  const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
+  const [verifiedSub, setVerifiedSub] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [isOtpCodeSent, setIsOtpCodeSent] = useState(false);
   const [pinCode, setPinCode] = useState("");
 
-  const sendOtpCode = async (email: string) => {
-    // fetch POST api.potapov.dev/otp/otp-verification/start?email=${email}
-    const resp = await fetch(`https://api.potapov.dev/otp/otp-verification/start?email=${email}`, {
+  const validateEmail = (emailOrPhone: string): string | undefined => {
+    const emailCandidate = emailOrPhone.replace(" ", "").toLowerCase()
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCandidate)) {
+      return emailCandidate
+    }
+  }
+
+  const validatePhone = (emailOrPhone: string): string | undefined => {
+    const phoneCandidate = emailOrPhone.replace(/[^0-9+]/g, "")
+    if (/^\+?[0-9]{10,12}$/.test(phoneCandidate)) {
+      return phoneCandidate
+    }
+  }
+  const sendOtpCode = async (emailOrPhone: string) => {
+    const email = validateEmail(emailOrPhone)
+    const phone = validatePhone(emailOrPhone)
+    const query = email ? `email=${email}` : `phone=${phone}`
+    const resp = await fetch(`https://api.potapov.dev/otp/otp-verification/start?${query}`, {
       method: "POST",
       mode: "cors",
     })
     if (!resp.ok) {
+      // TODO: display error
       console.log("error", resp)
       return
     }
     setIsOtpCodeSent(true)
   }
 
-  const completeAuth = async (email: string, pinCode: string) => {
-    // POST api.potapov.dev/otp/otp-verification/complete?email=${email}&pin=${pinCode}
-    const resp = await fetch(`https://api.potapov.dev/otp/otp-verification/complete?email=${email}&pin=${pinCode}`, {
+  const completeAuth = async (emailOrPhone: string, pinCode: string) => {
+    const email = validateEmail(emailOrPhone)
+    const phone = validatePhone(emailOrPhone)
+    const query = email ? `email=${email}&pin=${pinCode}` : `phone=${phone}&pin=${pinCode}`
+    const resp = await fetch(`https://api.potapov.dev/otp/otp-verification/complete?${query}`, {
       method: "POST",
       mode: "cors",
     })
     if (!resp.ok) {
+      // TODO: display error
       console.log("error", resp, await resp.json())
       return
     }
@@ -37,10 +57,8 @@ function App() {
     const token = json.token
     const decoded = jwt_decode(token) as { sub: string }
 
-    const tokenEmail = decoded.sub.split(":")[1]
-    console.log("decoded", decoded, decoded.sub, tokenEmail)
-    setVerifiedEmail(tokenEmail)
-
+    setVerifiedSub(decoded.sub)
+    setToken(token)
     setIsOtpCodeSent(false)
     setPinCode("")
 
@@ -49,46 +67,55 @@ function App() {
     <div className="App">
       <h1>OTP Verification</h1>
       <Grid container justifyContent={"center"} spacing={2} sx={{mt:2}}>
-        <Grid item xs={4}>
+        <Grid item xs={11} sm={6} md={4}>
           <Stack spacing={2} direction={"column"}>
             {
-              verifiedEmail && (
-                <div>
-                  <CheckIcon sx={{color: "green"}}/>
-                  <span>Verified email: {verifiedEmail}</span>
-                </div>
+              verifiedSub ? (
+                <>
+                  <TextField
+                    label={`JWT Token (✅ ️${verifiedSub})`}
+                    value={token}
+                    autoFocus={true}
+                    sx={{width: "100%"}}
+                    onFocus={event => {
+                      event.target.select();
+                    }}
+                  />
+                  <a href={`https://jwt.io/#debugger-io?token=${token}`} target="_blank" rel="noreferrer">Check on jwt.io</a>
+                </>
+              ) : (
+                <>
+                  <TextField
+                    label="Email or Phone"
+                    value={emailOrPhone}
+                    onChange={(e) => setEmailOrPhone(e.target.value)}
+                    sx={{width: "100%"}}
+                  />
+                  {isOtpCodeSent ? (
+                    <>
+                      <TextField
+                        label="PIN code"
+                        value={pinCode}
+                        onChange={(e) => setPinCode(e.target.value)}
+                        sx={{width: "100%"}}
+                      />
+                      <Button
+                        variant="contained"
+                        disabled={!pinCode}
+                        onClick={() => completeAuth(emailOrPhone, pinCode)}
+                      >Complete Auth</Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      disabled={!validateEmail(emailOrPhone) && !validatePhone(emailOrPhone)}
+                      onClick={() => sendOtpCode(emailOrPhone)}
+                    >Send Code</Button>
+                  )}
+                </>
+
               )
             }
-            <TextField
-              label="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={{width: "100%"}}
-            />
-            {!isOtpCodeSent && (
-              <Button
-                variant="contained"
-                disabled={!email}
-                onClick={() => sendOtpCode(email)}
-              >Verify Email</Button>
-            )}
-
-            {isOtpCodeSent && (<>
-                <TextField
-                  label="PIN code"
-                  value={pinCode}
-                  onChange={(e) => setPinCode(e.target.value)}
-                  sx={{width: "100%"}}
-                />
-                <Button
-                  variant="contained"
-                  disabled={!pinCode}
-                  onClick={() => completeAuth(email, pinCode)}
-                >Complete Auth</Button>
-              </>
-              )
-            }
-
           </Stack>
         </Grid>
       </Grid>
