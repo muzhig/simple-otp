@@ -1,5 +1,8 @@
 {
+  "name": "simple-otp",
+  "private": true,
   "devDependencies": {
-    "serverless-python-requirements": "^6.0.0"
+    "osls": "^3.62.1",
+    "serverless-python-requirements": "^6.1.2"
   }
 }

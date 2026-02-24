@@ -1,17 +1,12 @@
-org: muzhig
-app: push-to-notion
 service: ${env:SERVICE_NAME}
-frameworkVersion: '3'
 useDotenv: true
-variablesResolutionMode: 20210326
 configValidationMode: error
 
 provider:
   name: aws
   profile: ${env:AWS_PROFILE, "default"}
   region: ${env:AWS_REGION, "us-east-1"}
-  runtime: python3.9
-  lambdaHashingVersion: 20201221
+  runtime: python3.12
   memorySize: 128
   environment:
     SENTRY_DSN: ${env:SENTRY_DSN}
@@ -50,6 +45,9 @@ resources: # CloudFormation template syntax from here on.
 
 plugins:
   - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
 package:
   patterns:
     - '!node_modules/**'
