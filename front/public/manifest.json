@@ -1,6 +1,7 @@
 {
   "short_name": "Simple OTP",
-  "name": "Simple OTP – Potapov.Dev",
+  "name": "Simple OTP – Passwordless Auth Demo | Potapov.Dev",
+  "description": "Passwordless OTP authentication demo. Verify your email or phone and get a JWT token. Open-source AWS Lambda microservice.",
   "icons": [
     {
       "src": "/android-chrome-192.png",
@@ -15,6 +16,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#1976d2",
   "background_color": "#ffffff"
 }
