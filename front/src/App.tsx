@@ -11,7 +11,6 @@ function App() {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [isOtpCodeSent, setIsOtpCodeSent] = useState(false);
   const [pinCode, setPinCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);  // TODO: show loading circle, disable buttons
 
   const validateEmail = (emailOrPhone: string): string | undefined => {
     const emailCandidate = emailOrPhone.replace(" ", "").toLowerCase()
