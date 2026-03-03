@@ -67,7 +67,7 @@ function App() {
   return (
     <div className="App">
       <Grid container justifyContent={"center"} spacing={2} sx={{mt: 4, mb: 4}}>
-        <Grid item xs={11} sm={8} md={6}>
+        <Grid item xs={11} sm={8} md={8}>
           <Typography variant="h4" component="h1" gutterBottom sx={{fontWeight: 600}}>
             Simple OTP Demo
           </Typography>
@@ -77,7 +77,7 @@ function App() {
           </Typography>
         </Grid>
 
-        <Grid item xs={11} sm={8} md={6}>
+        <Grid item xs={11} sm={8} md={8}>
           <Stack spacing={2} direction={"column"}>
             {
               verifiedSub ? (
@@ -130,7 +130,7 @@ function App() {
           </Stack>
         </Grid>
 
-        <Grid item xs={11} sm={8} md={6} sx={{mt: 4}}>
+        <Grid item xs={11} sm={8} md={8} sx={{mt: 4}}>
           <Typography variant="h6" component="h2" gutterBottom sx={{fontWeight: 500}}>
             How It Works
           </Typography>
